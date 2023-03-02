@@ -2,6 +2,8 @@ import serial
 import csv
 import datetime
 import os
+import pandas as pd
+import matplotlib.pyplot as plt
 
 # Seteamos el puerto serial
 try:
@@ -11,7 +13,7 @@ except:
     exit()
 
 # Seteamos el nombre del archivo
-filename = 'data.csv'
+filename = 'data2.csv'
 if os.path.isfile(filename):
     print('El archivo ya existe, agregando datos...')
 else:
@@ -20,6 +22,15 @@ else:
     with open(filename, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['Fecha', 'Hora', 'Dato'])
+
+def graficar():
+    # Graficamos los datos tiempo real
+    df = pd.read_csv(filename)
+    df['Fecha'] = pd.to_datetime(df['Fecha'])
+    df['Hora'] = pd.to_datetime(df['Hora'])
+    df['Dato'] = pd.to_numeric(df['Dato'])
+    df.plot(x='Fecha', y='Dato')
+    plt.show()
 
 
 # Leemos los datos del puerto serial
@@ -38,6 +49,14 @@ while True:
                 writer = csv.writer(f)
                 writer.writerow([date, time, data])
             print(f'Fecha: {date} Hora: {time} Dato: {data}')
+
+            # Estadistica descriptiva
+            df = pd.read_csv(filename)
+            print(df.describe()) 
+
+            # Graficamos los datos tiempo real
+            graficar()
+           
 
     except Exception as e:
         print(f'Error al leer los datos: {str(e)}')
